@@ -1,0 +1,39 @@
+# JSON Server Setup
+
+## Start the API Server
+
+Run this command in a separate terminal:
+
+```bash
+./start-server.sh
+```
+
+Or manually:
+
+```bash
+json-server --watch db.json --port 3000 --host 0.0.0.0
+```
+
+The API will be available at:
+- http://localhost:3000/products
+- http://localhost:3000/products/:id
+
+## For Android Emulator
+
+If using Android emulator, use `http://10.0.2.2:3000` instead of `http://localhost:3000`
+
+Update `src/api/products.ts`:
+```typescript
+const API_URL = 'http://10.0.2.2:3000';
+```
+
+## For iOS Simulator
+
+iOS simulator can use `http://localhost:3000` directly.
+
+## For Physical Device
+
+Find your computer's IP address and use:
+```typescript
+const API_URL = 'http://YOUR_IP:3000';
+```

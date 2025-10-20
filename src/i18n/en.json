@@ -1,0 +1,11 @@
+{
+  "productListTitle": "Products",
+  "searchProducts": "Search products...",
+  "error": "Error",
+  "errorMessage": "Something went wrong",
+  "retry": "Retry",
+  "noProducts": "No Products",
+  "noProductsMessage": "No products available",
+  "loading": "Loading...",
+  "addToCart": "Add to Cart"
+}

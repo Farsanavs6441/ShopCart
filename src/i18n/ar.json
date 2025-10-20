@@ -1,0 +1,11 @@
+{
+  "productListTitle": "المنتجات",
+  "searchProducts": "البحث عن المنتجات...",
+  "error": "خطأ",
+  "errorMessage": "حدث خطأ ما",
+  "retry": "إعادة المحاولة",
+  "noProducts": "لا توجد منتجات",
+  "noProductsMessage": "لا توجد منتجات متاحة",
+  "loading": "جاري التحميل...",
+  "addToCart": "أضف إلى السلة"
+}
