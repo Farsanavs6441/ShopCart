@@ -13,7 +13,9 @@ const CartBadge: React.FC<CartBadgeProps> = ({ count }) => {
   if (count === 0) return null;
 
   return (
-    <View style={[styles.badge, { backgroundColor: colors.error }]}>
+    <View 
+     testID="cart-badge"
+     style={[styles.badge, { backgroundColor: colors.error }]}>
       <Text style={styles.badgeText}>{count > 99 ? '99+' : count}</Text>
     </View>
   );

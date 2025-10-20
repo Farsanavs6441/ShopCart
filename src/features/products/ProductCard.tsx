@@ -57,6 +57,7 @@ const ProductCard: React.FC<Props> = ({ product, isFavorite, onToggleFavorite, o
 
   return (
     <TouchableOpacity
+     testID="product-card"
       style={[styles.card, { width: CARD_WIDTH, backgroundColor: colors.card, borderColor: colors.border }]}
       onPress={onPress}
       activeOpacity={0.8}
@@ -64,6 +65,7 @@ const ProductCard: React.FC<Props> = ({ product, isFavorite, onToggleFavorite, o
       <View style={styles.imageContainer}>
         {/* Loader */}
        <ActivityIndicator
+        testID="activity-indicator"
          size="small"
          color={colors.textSecondary}
          style={StyleSheet.absoluteFill}
@@ -72,6 +74,7 @@ const ProductCard: React.FC<Props> = ({ product, isFavorite, onToggleFavorite, o
 
         {/* Animated image */}
         <Animated.Image
+        testID="product-image"
           source={{ uri: product.thumbnail }}
           style={[styles.image, { opacity }]}
           resizeMode="cover"

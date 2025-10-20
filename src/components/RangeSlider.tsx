@@ -38,6 +38,7 @@ const PriceRangeSelector: React.FC<Props> = ({
   return (
     <View style={{ paddingHorizontal: 16, marginVertical: 10 }}>
       <MultiSlider
+      
         values={values}
         min={min}
         max={max}
