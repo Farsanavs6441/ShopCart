@@ -8,24 +8,24 @@ interface ShareButtonProps {
 
 const ShareButton: React.FC<ShareButtonProps> = ({ productId, productName }) => {
   const handleShare = async () => {
-    // const url = `https://shop.com/product/${productId}`;
-    // try {
-    //   await Share.share({
-    //     message: `Check out this amazing flower on Flowerly 🌸: ${url}`,
-    //   });
-    // } catch (error) {
-    //   console.error('Error sharing product:', error);
-    // }
+    const url = `https://shop.com/product/${productId}`;
     try {
-        
-      const deepLink = `myshop://product/${productId}`;
       await Share.share({
-        message: `I found this product, please check it out:\n\n${productName}\n${deepLink}`,
+        message: `Check out this amazing flower on Flowerly 🌸: ${url}`,
       });
     } catch (error) {
-      Alert.alert('Error', 'Unable to share product.');
-      console.error(error);
+      console.error('Error sharing product:', error);
     }
+    // try {
+        
+    //   const deepLink = `myshop://product/${productId}`;
+    //   await Share.share({
+    //     message: `I found this product, please check it out:\n\n${productName}\n${deepLink}`,
+    //   });
+    // } catch (error) {
+    //   Alert.alert('Error', 'Unable to share product.');
+    //   console.error(error);
+    // }
   };
 
   return (

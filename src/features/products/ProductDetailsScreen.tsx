@@ -207,7 +207,7 @@ const handleShareProduct = (productId: string, productName: string) => {
           </TouchableOpacity>
 
           {/* Share Button */}
-          <ShareButton productId={product.id} productName={product.title} />
+          {/* <ShareButton productId={product.id} productName={product.title} /> */}
         </View>
       </ScrollView>
     </SafeAreaView>

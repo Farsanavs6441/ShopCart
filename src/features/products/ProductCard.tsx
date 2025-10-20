@@ -2,12 +2,12 @@ import React, { useState } from 'react';
 import {
   View,
   Text,
-  Image,
   TouchableOpacity,
   StyleSheet,
   I18nManager,
   Dimensions,
   Animated,
+  ActivityIndicator,
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../theme/theme';
@@ -33,12 +33,7 @@ const windowWidth = Dimensions.get('window').width;
 const CARD_MARGIN = 8;
 const CARD_WIDTH = (windowWidth - CARD_MARGIN * 6) / 2; // 2-column grid
 
-const ProductCard: React.FC<Props> = ({
-  product,
-  isFavorite,
-  onToggleFavorite,
-  onPress,
-}) => {
+const ProductCard: React.FC<Props> = ({ product, isFavorite, onToggleFavorite, onPress }) => {
   const { t } = useTranslation();
   const theme = useTheme();
   const colors = theme?.colors || {
@@ -47,9 +42,12 @@ const ProductCard: React.FC<Props> = ({
     text: '#000000',
     textSecondary: '#666666',
   };
+
   const [opacity] = useState(new Animated.Value(0));
+  const [loaded, setLoaded] = useState(false);
 
   const handleImageLoad = () => {
+    setLoaded(true);
     Animated.timing(opacity, {
       toValue: 1,
       duration: 300,
@@ -63,14 +61,24 @@ const ProductCard: React.FC<Props> = ({
       onPress={onPress}
       activeOpacity={0.8}
     >
-      {/* Image with heart overlay */}
       <View style={styles.imageContainer}>
+        {/* Loader */}
+       <ActivityIndicator
+         size="small"
+         color={colors.textSecondary}
+         style={StyleSheet.absoluteFill}
+         animating={!loaded}
+       />
+
+        {/* Animated image */}
         <Animated.Image
           source={{ uri: product.thumbnail }}
           style={[styles.image, { opacity }]}
           resizeMode="cover"
           onLoad={handleImageLoad}
         />
+
+        {/* Favorite heart */}
         <TouchableOpacity
           style={styles.heartButton}
           onPress={() => onToggleFavorite(product.id)}
@@ -80,12 +88,14 @@ const ProductCard: React.FC<Props> = ({
         </TouchableOpacity>
       </View>
 
-      {/* Details */}
+      {/* Product details */}
       <View style={styles.details}>
         <Text style={[styles.title, { color: colors.text }]} numberOfLines={2}>
           {product.title}
         </Text>
-        <Text style={[styles.price, { color: colors.textSecondary }]}>{formatCurrency(product.price)}</Text>
+        <Text style={[styles.price, { color: colors.textSecondary }]}>
+          {formatCurrency(product.price)}
+        </Text>
         <StarRating rating={product.rating} size={16} />
       </View>
     </TouchableOpacity>
