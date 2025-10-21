@@ -1,9 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, Platform } from 'react';
 import {
   View,
   Text,
   FlatList,
-  Image,
   StyleSheet,
   TouchableOpacity,
   SafeAreaView,
@@ -12,6 +11,7 @@ import {
   I18nManager,
   useColorScheme,
   Share,
+  Animated,
 } from 'react-native';
 import { useRoute } from '@react-navigation/native';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
@@ -22,7 +22,6 @@ import i18n from '../../i18n/index';
 import StarRating from '../../components/StarRating';
 import { formatCurrency } from '../../utils/currency';
 import { cacheProduct, getCachedProduct } from '../../utils/productCache';
-import ShareButton from '../../components/ShareButton';
 
 const { width } = Dimensions.get('window');
 
@@ -30,18 +29,70 @@ interface Product {
   id: string;
   title: string;
   price: number;
-  rating: number;
-  description: string;
-  images: string[];
+  rating?: number;
+  description?: string;
+  images?: string[];
   thumbnail: string;
+  category?: string;
 }
+
+const ImageWithShimmer: React.FC<{ uri: string; index: number }> = ({ uri, index }) => {
+  const [loaded, setLoaded] = useState(false);
+  const shimmerAnim = React.useRef(new Animated.Value(0)).current;
+
+  React.useEffect(() => {
+    if (!loaded) {
+      Animated.loop(
+        Animated.sequence([
+          Animated.timing(shimmerAnim, {
+            toValue: 1,
+            duration: 1000,
+            useNativeDriver: true,
+          }),
+          Animated.timing(shimmerAnim, {
+            toValue: 0,
+            duration: 1000,
+            useNativeDriver: true,
+          }),
+        ])
+      ).start();
+    }
+  }, [loaded, shimmerAnim]);
+
+  const shimmerOpacity = shimmerAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0.3, 0.7],
+  });
+
+  return (
+    <>
+      {!loaded && (
+        <Animated.View
+          style={[
+            StyleSheet.absoluteFill,
+            { backgroundColor: '#e0e0e0', opacity: shimmerOpacity },
+          ]}
+        />
+      )}
+      <Animated.Image
+        source={{ uri }}
+        style={[{ width: '100%', height: '100%' }, { opacity: loaded ? 1 : 0 }]}
+        resizeMode="cover"
+        onLoad={() => setLoaded(true)}
+      />
+    </>
+  );
+};
 
 const ProductDetailsScreen: React.FC = () => {
   const route = useRoute<any>();
-  const productId = route.params?.id; // gets id from deep link
-  const [product, setProduct] = useState<Product | null>(null);
-  const [loading, setLoading] = useState(true);
+  const productFromNav = route.params?.product;
+  const [product, setProduct] = useState<Product | null>(productFromNav || null);
+  const [loading, setLoading] = useState(!productFromNav);
   const [isOffline, setIsOffline] = useState(false);
+
+  console.log('ProductDetailsScreen mounted with product:', productFromNav);
+  console.log('Route params:', route.params);
 
   const { t } = useTranslation();
   const colorScheme = useColorScheme();
@@ -54,19 +105,38 @@ const ProductDetailsScreen: React.FC = () => {
   const dispatch = useAppDispatch();
   const isFavorite = product ? favorites.includes(product.id) : false;
 
-  // Fetch product based on id (deep link or normal navigation)
+  // Only fetch if product not passed from navigation
   React.useEffect(() => {
+    if (productFromNav) {
+      setLoading(false);
+      return;
+    }
+    
     const fetchProduct = async () => {
+      const productId = route.params?.id;
+      if (!productId) return;
+      
       try {
         setLoading(true);
         setIsOffline(false);
-        const response = await fetch(`http://localhost:3000/products/${productId}`);
+        const API_URL = Platform.OS === 'android' ? 'http://10.0.2.2:3000' : 'http://localhost:3000';
+        const response = await fetch(`${API_URL}/products/${productId}`);
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
         const data = await response.json();
-        setProduct(data);
-        await cacheProduct(productId, data);
+        
+        if (data && data.id) {
+          setProduct(data);
+          await cacheProduct(productId, data);
+        } else {
+          throw new Error('Invalid product data');
+        }
       } catch (error) {
         console.error('Error fetching product:', error);
-        const cached = await getCachedProduct(productId);
+        const cached = await getCachedProduct(route.params?.id);
         if (cached) {
           setProduct(cached);
           setIsOffline(true);
@@ -75,8 +145,8 @@ const ProductDetailsScreen: React.FC = () => {
         setLoading(false);
       }
     };
-    if (productId) fetchProduct();
-  }, [productId]);
+    fetchProduct();
+  }, [productFromNav, route.params]);
 
   const increment = () => setQuantity((q) => q + 1);
   const decrement = () => setQuantity((q) => (q > 1 ? q - 1 : 1));
@@ -99,10 +169,18 @@ const handleShareProduct = (productId: string, productName: string) => {
 };
 
 
-  if (loading || !product) {
+  if (loading) {
     return (
       <SafeAreaView style={[styles.center, { backgroundColor: isDark ? '#111' : '#fff' }]}>
         <Text style={{ color: isDark ? '#fff' : '#000' }}>{t('loading')}</Text>
+      </SafeAreaView>
+    );
+  }
+
+  if (!product) {
+    return (
+      <SafeAreaView style={[styles.center, { backgroundColor: isDark ? '#111' : '#fff' }]}>
+        <Text style={{ color: isDark ? '#fff' : '#000', marginBottom: 20 }}>Product not found</Text>
       </SafeAreaView>
     );
   }
@@ -149,9 +227,9 @@ const handleShareProduct = (productId: string, productName: string) => {
               const index = Math.round(event.nativeEvent.contentOffset.x / width);
               setCurrentImageIndex(index);
             }}
-            renderItem={({ item }) => (
-              <View style={{ width, height: width * 0.75 }}>
-                <Image source={{ uri: item }} style={styles.image} resizeMode="cover" />
+            renderItem={({ item, index }) => (
+              <View style={{ width, height: width * 0.75, backgroundColor: '#f0f0f0' }}>
+                <ImageWithShimmer uri={item} index={index} />
                 <TouchableOpacity
                   style={styles.heartButton}
                   onPress={() => dispatch(toggleFavorite(product.id))}
@@ -184,11 +262,13 @@ const handleShareProduct = (productId: string, productName: string) => {
             {formatCurrency(product.price)}
           </Text>
 
-          <StarRating rating={product.rating} size={20} />
+          {product.rating && <StarRating rating={product.rating} size={20} />}
 
-          <Text style={[styles.sectionLabel, { color: isDark ? '#ccc' : '#333', textAlign: I18nManager.isRTL ? 'right' : 'left' }]}>
-            {product.description}
-          </Text>
+          {product.description && (
+            <Text style={[styles.sectionLabel, { color: isDark ? '#ccc' : '#333', textAlign: I18nManager.isRTL ? 'right' : 'left' }]}>
+              {product.description}
+            </Text>
+          )}
 
           {/* Quantity Stepper */}
           <Text style={[styles.quantityLabel, { color: isDark ? '#ccc' : '#333', textAlign: I18nManager.isRTL ? 'right' : 'left', marginBottom: 8 }]}>

@@ -88,10 +88,14 @@ const ProductListScreen: React.FC = () => {
   const navigation = useNavigation<NavProp>();
 
   // Responsive width calculation
-  const screenWidth = Dimensions.get('window').width;
+  const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
   const numColumns = 2;
-  const cardMargin = 8;
-  const cardWidth = (screenWidth - (numColumns + 1) * cardMargin - 16) / numColumns;
+  const CARD_MARGIN = 8;
+  const HORIZONTAL_PADDING = 16;
+  const cardWidth = (SCREEN_WIDTH - HORIZONTAL_PADDING * 2 - CARD_MARGIN * (numColumns - 1)) / numColumns;
+  
+  const paddingTopNormal = Platform.OS === 'android' ? SCREEN_HEIGHT * 0.20 : SCREEN_HEIGHT * 0.16;
+  const paddingTopWithSlider = Platform.OS === 'android' ? SCREEN_HEIGHT * 0.28 : SCREEN_HEIGHT * 0.25;
 
   const togglePriceSlider = () => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
@@ -104,15 +108,20 @@ const ProductListScreen: React.FC = () => {
       setIsOffline(false);
       if (cachedProducts.length === 0) setLoading(true);
       const data = await getProducts();
-      setProducts(data);
-      dispatch(setCachedProducts(data));
+      console.log('Loaded products:', data?.length || 0);
+      if (data && Array.isArray(data) && data.length > 0) {
+        setProducts(data);
+        dispatch(setCachedProducts(data));
+      } else {
+        setError('No products available from API');
+      }
     } catch (err) {
-      console.error(err);
+      console.error('Load error:', err);
       if (cachedProducts.length > 0) {
         setIsOffline(true);
         setProducts(cachedProducts);
       } else {
-        setError('Failed to load products. Please check your connection.');
+        setError('Failed to load products. Please start API server: npm run api');
       }
     } finally {
       setLoading(false);
@@ -178,13 +187,13 @@ const ProductListScreen: React.FC = () => {
     beauty: 'Beauty',
   };
 
-  const renderItem = ({ item }: { item: Product }) => (
-    <View style={{ width: cardWidth, marginBottom: cardMargin }}>
+  const renderItem = ({ item, index }: { item: Product; index: number }) => (
+    <View style={{ width: cardWidth, marginRight: index % numColumns === 0 ? CARD_MARGIN : 0, marginBottom: CARD_MARGIN }}>
       <ProductCard
         product={item}
         isFavorite={favorites.includes(item.id)}
         onToggleFavorite={(id) => dispatch(toggleFavorite(id))}
-        onPress={() => navigation.navigate('ProductDetails', { id: item.id })}
+        onPress={() => navigation.navigate('ProductDetails', { product: item })}
       />
     </View>
   );
@@ -222,10 +231,21 @@ const ProductListScreen: React.FC = () => {
   });
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top', 'left', 'right']}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={[ 'top','left', 'right']}>
       {/* Fixed Header */}
       <View style={[styles.fixedHeader, { backgroundColor: colors.background }]}>
         <OfflineBanner isOffline={isOffline} />
+        <View style={styles.headerRow}>
+          <Text style={[styles.headerTitle, { color: colors.text }]}>{t('products')}</Text>
+          <View style={styles.headerButtons}>
+            <TouchableOpacity style={[styles.filterButton, { backgroundColor: colors.surface }]} onPress={toggleTheme}>
+              <Text style={{ fontSize: 18 }}>{isDark ? '☀️' : '🌙'}</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={[styles.filterButton, { backgroundColor: colors.primary }]} onPress={toggleLanguage}>
+              <Text style={{ color: '#fff', fontSize: 11, fontWeight: '600' }}>{i18n.language === 'en' ? 'عر' : 'EN'}</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
         <View style={styles.searchContainer}>
           <TextInput
             style={[
@@ -237,12 +257,6 @@ const ProductListScreen: React.FC = () => {
             value={searchQuery}
             onChangeText={setSearchQuery}
           />
-          <TouchableOpacity style={[styles.filterButton, { backgroundColor: colors.surface }]} onPress={toggleTheme}>
-            <Text style={{ fontSize: 18 }}>{isDark ? '☀️' : '🌙'}</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={[styles.filterButton, { backgroundColor: colors.primary }]} onPress={toggleLanguage}>
-            <Text style={{ color: '#fff', fontSize: 11, fontWeight: '600' }}>{i18n.language === 'en' ? 'عر' : 'EN'}</Text>
-          </TouchableOpacity>
           <TouchableOpacity style={[styles.filterButton, { backgroundColor: colors.primary }]} onPress={togglePriceSlider}>
             <Text style={{ color: '#fff', fontSize: 16 }}>💰</Text>
           </TouchableOpacity>
@@ -295,11 +309,11 @@ const ProductListScreen: React.FC = () => {
 
       {/* Product List */}
       {loading && !refreshing ? (
-        <View style={{ paddingTop: showPriceSlider ? 170 : 100 }}>
+        <View style={{ paddingTop: showPriceSlider ? paddingTopWithSlider : paddingTopNormal }}>
           {renderSkeletons()}
         </View>
       ) : error ? (
-        <View style={{ paddingTop: showPriceSlider ? 170 : 100 }}>
+        <View style={{ paddingTop: showPriceSlider ? paddingTopWithSlider : paddingTopNormal }}>
           <ErrorState message={error} onRetry={load} textColor={colors.text} buttonColor={colors.primary} />
         </View>
       ) : (
@@ -308,11 +322,10 @@ const ProductListScreen: React.FC = () => {
           keyExtractor={(item) => item.id}
           renderItem={renderItem}
           numColumns={numColumns}
-          columnWrapperStyle={{ justifyContent: 'space-between' }}
           contentContainerStyle={{
-            paddingTop: showPriceSlider ? 170 : 100,
-            paddingBottom: 20,
-            paddingHorizontal: cardMargin,
+            paddingTop: showPriceSlider ? paddingTopWithSlider : paddingTopNormal,
+            paddingBottom: 40,
+            paddingHorizontal: HORIZONTAL_PADDING,
           }}
           refreshControl={
             <RefreshControl
@@ -330,20 +343,29 @@ const ProductListScreen: React.FC = () => {
             ) : null
           }
           ListEmptyComponent={
-            searchQuery || selectedCategory !== 'All' || priceRange.min > 0 || priceRange.max < 1000 ? (
-              <EmptyState
-                emoji="🔍"
-                title="No Products Found"
-                message="Try adjusting your search or filters"
-                textColor={colors.text}
-              />
-            ) : (
-              <EmptyState
-                emoji="📦"
-                title="No Products Available"
-                message="Check back later for new products"
-                textColor={colors.text}
-              />
+            !loading && (
+              searchQuery || selectedCategory !== 'All' || priceRange.min > 0 || priceRange.max < 1000 ? (
+                <EmptyState
+                  emoji="🔍"
+                  title="No Products Found"
+                  message="Try adjusting your search or filters"
+                  textColor={colors.text}
+                />
+              ) : products.length === 0 ? (
+                <EmptyState
+                  emoji="🚨"
+                  title="Failed to Load Products"
+                  message="Please check your API server is running"
+                  textColor={colors.text}
+                />
+              ) : (
+                <EmptyState
+                  emoji="📦"
+                  title="No Products Available"
+                  message="Check back later for new products"
+                  textColor={colors.text}
+                />
+              )
             )
           }
         />
@@ -355,6 +377,9 @@ const ProductListScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: { flex: 1 },
   fixedHeader: { position: 'absolute', top: 0, left: 0, right: 0, zIndex: 10, paddingTop: 10 },
+  headerRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingVertical: 8 },
+  headerTitle: { fontSize: 24, fontWeight: 'bold' },
+  headerButtons: { flexDirection: 'row', alignItems: 'center' },
   searchContainer: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 10 },
   searchInput: { borderWidth: 1, borderRadius: 8, padding: 10, fontSize: 16, flex: 1 },
   filterButton: {

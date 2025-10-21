@@ -7,7 +7,6 @@ import {
   I18nManager,
   Dimensions,
   Animated,
-  ActivityIndicator,
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../theme/theme';
@@ -45,6 +44,26 @@ const ProductCard: React.FC<Props> = ({ product, isFavorite, onToggleFavorite, o
 
   const [opacity] = useState(new Animated.Value(0));
   const [loaded, setLoaded] = useState(false);
+  const shimmerAnim = useState(new Animated.Value(0))[0];
+
+  React.useEffect(() => {
+    if (!loaded) {
+      Animated.loop(
+        Animated.sequence([
+          Animated.timing(shimmerAnim, {
+            toValue: 1,
+            duration: 1000,
+            useNativeDriver: true,
+          }),
+          Animated.timing(shimmerAnim, {
+            toValue: 0,
+            duration: 1000,
+            useNativeDriver: true,
+          }),
+        ])
+      ).start();
+    }
+  }, [loaded, shimmerAnim]);
 
   const handleImageLoad = () => {
     setLoaded(true);
@@ -55,6 +74,11 @@ const ProductCard: React.FC<Props> = ({ product, isFavorite, onToggleFavorite, o
     }).start();
   };
 
+  const shimmerOpacity = shimmerAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0.3, 0.7],
+  });
+
   return (
     <TouchableOpacity
      testID="product-card"
@@ -63,14 +87,15 @@ const ProductCard: React.FC<Props> = ({ product, isFavorite, onToggleFavorite, o
       activeOpacity={0.8}
     >
       <View style={styles.imageContainer}>
-        {/* Loader */}
-       <ActivityIndicator
-        testID="activity-indicator"
-         size="small"
-         color={colors.textSecondary}
-         style={StyleSheet.absoluteFill}
-         animating={!loaded}
-       />
+        {/* Shimmer loader */}
+        {!loaded && (
+          <Animated.View
+            style={[
+              StyleSheet.absoluteFill,
+              { backgroundColor: '#e0e0e0', opacity: shimmerOpacity },
+            ]}
+          />
+        )}
 
         {/* Animated image */}
         <Animated.Image

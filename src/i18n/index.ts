@@ -26,10 +26,8 @@ i18n
     },
   });
 
-// Listen for language changes and update RTL
-i18n.on('languageChanged', (lng) => {
-  const isRTL = lng === 'ar';
-  I18nManager.forceRTL(isRTL);
-});
+// Disable RTL by default - only enable for Arabic
+I18nManager.allowRTL(false);
+I18nManager.forceRTL(false);
 
 export default i18n;

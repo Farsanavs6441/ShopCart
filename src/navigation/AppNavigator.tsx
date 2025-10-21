@@ -1,5 +1,5 @@
 import React from 'react';
-import { Text, View } from 'react-native';
+import { Platform, Text, View } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -24,7 +24,7 @@ export type RootTabParamList = {
 
 export type ProductStackParamList = {
   ProductList: undefined;
-  ProductDetails: { id: string };
+  ProductDetails: { product: any };
 };
 
 const Tab = createBottomTabNavigator<RootTabParamList>();
@@ -38,7 +38,10 @@ function ProductStack() {
       <Stack.Screen
         name="ProductList"
         component={ProductListScreen}
-        options={{ title: t('products') }}
+        options={{
+    headerShown: Platform.OS !== 'android', // Hide header on iOS only
+    title: Platform.OS === 'ios' ? '' : t('products'),
+  }}
       />
       <Stack.Screen
         name="ProductDetails"
@@ -122,7 +125,7 @@ export default function AppNavigator() {
         <Tab.Screen 
           name="Products" 
           component={ProductStack} 
-          options={{ tabBarLabel: t('products') }}
+          options={{ headerShown: false,  }}
         />
         <Tab.Screen 
           name="Favorites" 
