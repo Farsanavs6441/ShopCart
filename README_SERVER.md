@@ -15,12 +15,12 @@ json-server --watch db.json --port 3000 --host 0.0.0.0
 ```
 
 The API will be available at:
-- http://localhost:3000/products
-- http://localhost:3000/products/:id
+- https://delmer-superadorn-luba.ngrok-free.dev/products
+- https://delmer-superadorn-luba.ngrok-free.dev/products/:id
 
 ## For Android Emulator
 
-If using Android emulator, use `http://10.0.2.2:3000` instead of `http://localhost:3000`
+If using Android emulator, use `http://10.0.2.2:3000` instead of `https://delmer-superadorn-luba.ngrok-free.dev`
 
 Update `src/api/products.ts`:
 ```typescript
@@ -29,7 +29,7 @@ const API_URL = 'http://10.0.2.2:3000';
 
 ## For iOS Simulator
 
-iOS simulator can use `http://localhost:3000` directly.
+iOS simulator can use `https://delmer-superadorn-luba.ngrok-free.dev` directly.
 
 ## For Physical Device
 

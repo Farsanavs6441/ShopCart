@@ -119,7 +119,7 @@ const ProductDetailsScreen: React.FC = () => {
       try {
         setLoading(true);
         setIsOffline(false);
-        const API_URL = Platform.OS === 'android' ? 'http://10.0.2.2:3000' : 'http://localhost:3000';
+        const API_URL = Platform.OS === 'android' ? 'http://10.0.2.2:3000' : 'https://delmer-superadorn-luba.ngrok-free.dev';
         const response = await fetch(`${API_URL}/products/${productId}`);
         
         if (!response.ok) {

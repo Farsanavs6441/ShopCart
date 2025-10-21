@@ -375,7 +375,7 @@ const ProductListScreen: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
+  container: { flex: 1 ,paddingTop:20},
   fixedHeader: { position: 'absolute', top: 0, left: 0, right: 0, zIndex: 10, paddingTop: 10 },
   headerRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingVertical: 8 },
   headerTitle: { fontSize: 24, fontWeight: 'bold' },

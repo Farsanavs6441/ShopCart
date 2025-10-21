@@ -27,7 +27,7 @@ A feature-rich e-commerce mobile application built with React Native, featuring 
 ### 1. Clone and Install Dependencies
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/Farsanavs6441/ShopCart.git
 cd ShopCart
 npm install
 ```
@@ -38,7 +38,7 @@ npm install
 npm run api
 ```
 
-This starts json-server at `http://localhost:3000` serving 12 products from `db.json`.
+This starts json-server at `https://delmer-superadorn-luba.ngrok-free.dev` serving 12 products from `db.json`.
 
 ### 3. Start Metro Bundler
 

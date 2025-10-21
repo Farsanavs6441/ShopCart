@@ -1,15 +1,32 @@
 import axios from 'axios';
 import { Platform } from 'react-native';
 
-// Android emulator uses 10.0.2.2 to access host machine's localhost
-const API_URL = Platform.OS === 'android' ? 'http://10.0.2.2:3000' : 'http://localhost:3000';
+// Local/emulator and remote (ngrok/LAN) endpoints
+const EMULATOR_ANDROID = 'http://10.0.2.2:3000';
+const EMULATOR_IOS = 'http://localhost:3000';
+const REMOTE_BASE = 'https://delmer-superadorn-luba.ngrok-free.dev';
+const LAN_BASE = 'http://192.168.1.42:3000';
+
+const API_URL = (() => {
+  if (__DEV__) {
+    // in development prefer emulator host when running on emulator
+    return Platform.OS === 'android' ? REMOTE_BASE : EMULATOR_IOS;
+  }
+  // installed APK / production -> use remote/ngrok or LAN
+  return REMOTE_BASE;
+})();
+
+const instance = axios.create({
+  baseURL: API_URL,
+  timeout: 10000,
+});
 
 export const getProducts = async () => {
-  const response = await axios.get(`${API_URL}/products`);
+  const response = await instance.get('/products');
   return response.data;
 };
 
 export const getProductById = async (id: string) => {
-  const response = await axios.get(`${API_URL}/products/${id}`);
+  const response = await instance.get(`/products/${id}`);
   return response.data;
 };
