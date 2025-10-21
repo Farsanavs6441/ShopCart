@@ -1,97 +1,177 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+# ShopCart - React Native E-Commerce App
 
-# Getting Started
+A feature-rich e-commerce mobile application built with React Native, featuring product browsing, cart management, favorites, and multi-language support.
 
-> **Note**: Make sure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
+## Features
 
-## Step 1: Start Metro
+- 📱 Product listing with search, filters, and categories
+- 🛒 Shopping cart with quantity management
+- ❤️ Favorites/wishlist functionality
+- 🌍 Multi-language support (English/Arabic) with RTL
+- 🌓 Dark mode support
+- 🔗 Deep linking (myshop://product/:id)
+- 💾 Offline caching with AsyncStorage
+- 🎨 Skeleton loaders and empty states
+- 📤 Product sharing
+- 🏷️ Promo code support
 
-First, you will need to run **Metro**, the JavaScript build tool for React Native.
+## Prerequisites
 
-To start the Metro dev server, run the following command from the root of your React Native project:
+- Node.js >= 20
+- React Native development environment ([Setup Guide](https://reactnative.dev/docs/set-up-your-environment))
+- For Android: Android Studio, JDK 17
+- For iOS: Xcode, CocoaPods
 
-```sh
-# Using npm
-npm start
+## Setup & Installation
 
-# OR using Yarn
-yarn start
+### 1. Clone and Install Dependencies
+
+```bash
+git clone <repository-url>
+cd ShopCart
+npm install
 ```
 
-## Step 2: Build and run your app
+### 2. Start Local API Server
 
-With Metro running, open a new terminal window/pane from the root of your React Native project, and use one of the following commands to build and run your Android or iOS app:
+```bash
+npm run api
+```
 
-### Android
+This starts json-server at `http://localhost:3000` serving 12 products from `db.json`.
 
-```sh
-# Using npm
+### 3. Start Metro Bundler
+
+```bash
+npm start
+```
+
+## Running the App
+
+### Android (Primary Platform)
+
+```bash
+# Start emulator or connect device
 npm run android
+```
 
-# OR using Yarn
-yarn android
+**Build APK:**
+```bash
+cd android
+./gradlew assembleRelease
+# APK: android/app/build/outputs/apk/release/app-release.apk
 ```
 
 ### iOS
 
-For iOS, remember to install CocoaPods dependencies (this only needs to be run on first clone or after updating native deps).
+```bash
+# Install pods (first time only)
+cd ios && pod install && cd ..
 
-The first time you create a new project, run the Ruby bundler to install CocoaPods itself:
-
-```sh
-bundle install
-```
-
-Then, and every time you update your native dependencies, run:
-
-```sh
-bundle exec pod install
-```
-
-For more information, please visit [CocoaPods Getting Started guide](https://guides.cocoapods.org/using/getting-started.html).
-
-```sh
-# Using npm
+# Run on simulator
 npm run ios
 
-# OR using Yarn
-yarn ios
+# Run on device
+npm run ios -- --device
 ```
 
-If everything is set up correctly, you should see your new app running in the Android Emulator, iOS Simulator, or your connected device.
+## Testing
 
-This is one way to run your app — you can also build it directly from Android Studio or Xcode.
+### Deep Links
 
-## Step 3: Modify your app
+**Android:**
+```bash
+adb shell am start -W -a android.intent.action.VIEW -d "myshop://product/p-1001"
+```
 
-Now that you have successfully run the app, let's make changes!
+**iOS:**
+```bash
+xcrun simctl openurl booted "myshop://product/p-1001"
+```
 
-Open `App.tsx` in your text editor of choice and make some changes. When you save, your app will automatically update and reflect these changes — this is powered by [Fast Refresh](https://reactnative.dev/docs/fast-refresh).
+### Promo Code
+Use code `SAVE10` for 10% discount in cart.
 
-When you want to forcefully reload, for example to reset the state of your app, you can perform a full reload:
+## Architecture
 
-- **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Dev Menu**, accessed via <kbd>Ctrl</kbd> + <kbd>M</kbd> (Windows/Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (macOS).
-- **iOS**: Press <kbd>R</kbd> in iOS Simulator.
+### State Management
+- **Redux Toolkit** for global state (cart, favorites, products)
+- **Redux Persist** with AsyncStorage for data persistence
+- Local component state with React hooks
 
-## Congratulations! :tada:
+### Data Fetching
+- **Axios** for API calls
+- **json-server** for local mock API
+- Offline-first with cached product list
+- Error handling with retry functionality
 
-You've successfully run and modified your React Native App. :partying_face:
+### Navigation
+- **React Navigation** (Stack + Bottom Tabs)
+- Deep linking configured for product pages
+- Nested navigators for Products tab
 
-### Now what?
+### Internationalization
+- **i18next** + **react-i18next**
+- RTL support with I18nManager
+- English and Arabic translations
 
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [docs](https://reactnative.dev/docs/getting-started).
+### Styling
+- Custom theme system with dark mode
+- React Native StyleSheet
+- Responsive layouts with Dimensions API
 
-# Troubleshooting
+### Key Libraries
+- `@reduxjs/toolkit` - State management
+- `@react-navigation/native` - Navigation
+- `react-i18next` - Internationalization
+- `redux-persist` - State persistence
+- `axios` - HTTP client
+- `json-server` - Mock API
 
-If you're having issues getting the above steps to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
+## Project Structure
 
-# Learn More
+```
+src/
+├── api/              # API client and endpoints
+├── components/       # Reusable components
+├── features/         # Feature modules
+│   ├── cart/        # Cart slice and screen
+│   ├── favorites/   # Favorites slice and screen
+│   └── products/    # Products slice and screens
+├── i18n/            # Translations (en.json, ar.json)
+├── navigation/      # Navigation configuration
+├── store/           # Redux store setup
+├── theme/           # Theme provider and colors
+└── utils/           # Helper functions
+```
 
-To learn more about React Native, take a look at the following resources:
+## API Endpoints
 
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+- `GET /products` - List all products
+- `GET /products/:id` - Get product by ID
+
+## Known Issues
+
+- React Native 0.82 has compatibility issues with react-native-reanimated
+- For real devices, update API_URL to your computer's IP address
+
+## Environment Configuration
+
+**For Real Devices:**
+Update `src/api/products.ts`:
+```typescript
+const API_URL = 'http://YOUR_IP:3000'; // e.g., http://192.168.1.4:3000
+```
+
+## Scripts
+
+- `npm start` - Start Metro bundler
+- `npm run android` - Run on Android
+- `npm run ios` - Run on iOS
+- `npm run api` - Start json-server
+- `npm run lint` - Run ESLint
+- `npm test` - Run tests
+
+## License
+
+MIT
