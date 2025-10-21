@@ -3,9 +3,13 @@ import { Text, View } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { useTranslation } from 'react-i18next';
 import { useAppSelector } from '../store/hooks';
 import { useTheme } from '../theme/theme';
 import CartBadge from '../components/CartBadge';
+import HomeIcon from '../components/icons/HomeIcon';
+import HeartIcon from '../components/icons/HeartIcon';
+import CartIcon from '../components/icons/CartIcon';
 
 import ProductListScreen from '../features/products/ProductListScreen';
 import ProductDetailsScreen from '../features/products/ProductDetailsScreen';
@@ -28,25 +32,26 @@ const Stack = createNativeStackNavigator<ProductStackParamList>();
 
 // Stack navigator for Products tab
 function ProductStack() {
+  const { t } = useTranslation();
   return (
     <Stack.Navigator>
       <Stack.Screen
         name="ProductList"
         component={ProductListScreen}
-        options={{ title: 'Products' }}
+        options={{ title: t('products') }}
       />
       <Stack.Screen
         name="ProductDetails"
         component={ProductDetailsScreen}
-        options={{ title: 'Details' }}
+        options={{ title: t('productListTitle') }}
       />
     </Stack.Navigator>
   );
 }
 
 export default function AppNavigator() {
+  const { t } = useTranslation();
   const theme = useTheme();
-  const isDark = theme?.isDark || false;
   const colors = theme?.colors || {
     primary: '#007AFF',
     textSecondary: '#666666',
@@ -80,28 +85,28 @@ export default function AppNavigator() {
         screenOptions={({ route }) => ({
           headerShown: false,
           tabBarIcon: ({ color, size, focused }) => {
-            let icon: string;
+            let IconComponent;
             let badgeCount = 0;
 
             switch (route.name) {
               case 'Products':
-                icon = '🏠';
+                IconComponent = <HomeIcon size={size} color={color} />;
                 break;
               case 'Favorites':
-                icon = focused ? '❤️' : '🤍';
+                IconComponent = <HeartIcon size={size} color={color} filled={focused} />;
                 badgeCount = favCount;
                 break;
               case 'Cart':
-                icon = '🛒';
+                IconComponent = <CartIcon size={size} color={color} />;
                 badgeCount = cartCount;
                 break;
               default:
-                icon = '⭕';
+                IconComponent = <HomeIcon size={size} color={color} />;
             }
 
             return (
               <View style={{ position: 'relative' }}>
-                <Text style={{ fontSize: size, color }}>{icon}</Text>
+                {IconComponent}
                 {badgeCount > 0 && <CartBadge count={badgeCount} />}
               </View>
             );
@@ -114,9 +119,21 @@ export default function AppNavigator() {
           },
         })}
       >
-        <Tab.Screen name="Products" component={ProductStack} />
-        <Tab.Screen name="Favorites" component={FavoritesScreen} />
-        <Tab.Screen name="Cart" component={CartScreen} />
+        <Tab.Screen 
+          name="Products" 
+          component={ProductStack} 
+          options={{ tabBarLabel: t('products') }}
+        />
+        <Tab.Screen 
+          name="Favorites" 
+          component={FavoritesScreen} 
+          options={{ tabBarLabel: t('favorites') }}
+        />
+        <Tab.Screen 
+          name="Cart" 
+          component={CartScreen} 
+          options={{ tabBarLabel: t('cart') }}
+        />
       </Tab.Navigator>
     </NavigationContainer>
   );

@@ -1,7 +1,6 @@
 import React from 'react';
 import { render } from '@testing-library/react-native';
 import CartBadge from '../components/CartBadge';
-import { useTheme } from '../theme/theme';
 
 // Mock theme
 jest.mock('../theme/theme', () => ({

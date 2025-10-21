@@ -9,6 +9,7 @@ import {
   Alert,
   Image,
 } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { useAppSelector, useAppDispatch } from '../../store/hooks';
 import { removeFromCart, updateQuantity, clearCart } from './cartSlice';
 import QuantityStepper from '../../components/QuantityStepper';
@@ -17,6 +18,7 @@ import { useTheme } from '../../theme/theme';
 import { EmptyState } from '../../components/EmptyState';
 
 const CartScreen = () => {
+  const { t } = useTranslation();
   const theme = useTheme();
   const colors = theme?.colors || { background: '#fff', text: '#000', textSecondary: '#666', surface: '#f8f9fa', card: '#fff', border: '#ddd' };
   const dispatch = useAppDispatch();
@@ -38,10 +40,10 @@ const CartScreen = () => {
   const applyPromo = () => {
     if (promoCode.trim().toUpperCase() === 'SAVE10') {
       setDiscount(0.1);
-      Alert.alert('Promo applied!', 'You got 10% off 🎉');
+      Alert.alert(t('promoCodeApplied'), 'You got 10% off 🎉');
     } else {
       setDiscount(0);
-      Alert.alert('Invalid Code', 'Please enter a valid promo code.');
+      Alert.alert(t('invalidPromoCode'), 'Please enter a valid promo code.');
     }
   };
 
@@ -55,7 +57,7 @@ const CartScreen = () => {
   };
 
   const handleClearCart = () => {
-    Alert.alert('Clear Cart', 'Are you sure?', [
+    Alert.alert(t('emptyCart'), 'Are you sure?', [
       { text: 'Cancel', style: 'cancel' },
       { text: 'Yes', onPress: () => dispatch(clearCart()) },
     ]);
@@ -63,13 +65,13 @@ const CartScreen = () => {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <Text style={[styles.title, { color: colors.text }]}>Your Cart</Text>
+      <Text style={[styles.title, { color: colors.text }]}>{t('cart')}</Text>
 
       {cart.length === 0 ? (
         <EmptyState
           emoji="🛒"
-          title="Your Cart is Empty"
-          message="Add some products to get started!"
+          title={t('emptyCart')}
+          message={t('emptyCartMessage')}
           textColor={colors.text}
         />
       ) : (
@@ -118,14 +120,14 @@ const CartScreen = () => {
           <View style={styles.promoContainer}>
             <TextInput
               style={[styles.input, { backgroundColor: colors.surface, borderColor: colors.border, color: colors.text }]}
-              placeholder="Enter promo code"
+              placeholder={t('enterPromoCode')}
               placeholderTextColor={colors.textSecondary}
               value={promoCode}
               onChangeText={setPromoCode}
               autoCapitalize="characters"
             />
             <TouchableOpacity style={styles.applyButton} onPress={applyPromo}>
-              <Text style={styles.applyText}>Apply</Text>
+              <Text style={styles.applyText}>{t('applyPromoCode')}</Text>
             </TouchableOpacity>
           </View>
           <Text style={[styles.promoHint, { color: colors.textSecondary }]}>Try: SAVE10 → 10% off</Text>
@@ -133,17 +135,17 @@ const CartScreen = () => {
           {/* Summary */}
           <View style={[styles.summary, { borderColor: colors.border }]}>
             <View style={styles.summaryRow}>
-              <Text style={[styles.summaryLabel, { color: colors.text }]}>Subtotal</Text>
+              <Text style={[styles.summaryLabel, { color: colors.text }]}>{t('subtotal')}</Text>
               <Text style={[styles.summaryValue, { color: colors.text }]}>{formatCurrency(subtotal || 0)}</Text>
             </View>
             <View style={styles.summaryRow}>
-              <Text style={[styles.summaryLabel, { color: colors.text }]}>Discount</Text>
+              <Text style={[styles.summaryLabel, { color: colors.text }]}>{t('discount')}</Text>
               <Text style={[styles.summaryValue, { color: colors.text }]}>
                 -{formatCurrency(discountAmount || 0)}
               </Text>
             </View>
             <View style={styles.summaryRow}>
-              <Text style={[styles.summaryTotalLabel, { color: colors.text }]}>Total</Text>
+              <Text style={[styles.summaryTotalLabel, { color: colors.text }]}>{t('total')}</Text>
               <Text style={[styles.summaryTotalValue, { color: colors.text }]}>{formatCurrency(total || 0)}</Text>
             </View>
           </View>
@@ -152,16 +154,16 @@ const CartScreen = () => {
           <View style={styles.buttons}>
             <TouchableOpacity
               style={[styles.button, { backgroundColor: '#4CAF50' }]}
-              onPress={() => Alert.alert('Checkout', 'Proceeding to checkout...')}
+              onPress={() => Alert.alert(t('checkout'), 'Proceeding to checkout...')}
             >
-              <Text style={styles.buttonText}>Checkout</Text>
+              <Text style={styles.buttonText}>{t('checkout')}</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
               style={[styles.button, { backgroundColor: '#E53935' }]}
               onPress={handleClearCart}
             >
-              <Text style={styles.buttonText}>Clear Cart</Text>
+              <Text style={styles.buttonText}>{t('emptyCart')}</Text>
             </TouchableOpacity>
           </View>
         </>

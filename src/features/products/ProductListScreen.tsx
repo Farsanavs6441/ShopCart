@@ -51,7 +51,7 @@ const ProductListScreen: React.FC = () => {
     UIManager.setLayoutAnimationEnabledExperimental(true);
   }
 
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const theme = useTheme();
   const colors = theme?.colors || {
     background: '#fff',
@@ -63,6 +63,12 @@ const ProductListScreen: React.FC = () => {
   };
   const isDark = theme?.isDark || false;
   const toggleTheme = theme?.toggleTheme || (() => {});
+
+  const toggleLanguage = () => {
+    const newLang = i18n.language === 'en' ? 'ar' : 'en';
+    i18n.changeLanguage(newLang);
+    I18nManager.forceRTL(newLang === 'ar');
+  };
 
   const cachedProducts = useAppSelector((s) => s.products.items);
   const [products, setProducts] = useState<Product[]>(cachedProducts);
@@ -233,6 +239,9 @@ const ProductListScreen: React.FC = () => {
           />
           <TouchableOpacity style={[styles.filterButton, { backgroundColor: colors.surface }]} onPress={toggleTheme}>
             <Text style={{ fontSize: 18 }}>{isDark ? '☀️' : '🌙'}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={[styles.filterButton, { backgroundColor: colors.primary }]} onPress={toggleLanguage}>
+            <Text style={{ color: '#fff', fontSize: 11, fontWeight: '600' }}>{i18n.language === 'en' ? 'عر' : 'EN'}</Text>
           </TouchableOpacity>
           <TouchableOpacity style={[styles.filterButton, { backgroundColor: colors.primary }]} onPress={togglePriceSlider}>
             <Text style={{ color: '#fff', fontSize: 16 }}>💰</Text>

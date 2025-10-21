@@ -52,7 +52,7 @@ const FavoritesScreen: React.FC = () => {
     try {
       const products = await Promise.all(
         favorites.map(async (id) => {
-          const response = await fetch(`https://dummyjson.com/products/${id}`);
+          const response = await fetch(`http://localhost:3000/products/${id}`);
           return response.json();
         })
       );

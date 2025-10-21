@@ -60,7 +60,7 @@ const ProductDetailsScreen: React.FC = () => {
       try {
         setLoading(true);
         setIsOffline(false);
-        const response = await fetch(`https://dummyjson.com/products/${productId}`);
+        const response = await fetch(`http://localhost:3000/products/${productId}`);
         const data = await response.json();
         setProduct(data);
         await cacheProduct(productId, data);
@@ -186,11 +186,14 @@ const handleShareProduct = (productId: string, productName: string) => {
 
           <StarRating rating={product.rating} size={20} />
 
-          <Text style={[styles.description, { color: isDark ? '#aaa' : '#666', textAlign: I18nManager.isRTL ? 'right' : 'left' }]}>
+          <Text style={[styles.sectionLabel, { color: isDark ? '#ccc' : '#333', textAlign: I18nManager.isRTL ? 'right' : 'left' }]}>
             {product.description}
           </Text>
 
           {/* Quantity Stepper */}
+          <Text style={[styles.quantityLabel, { color: isDark ? '#ccc' : '#333', textAlign: I18nManager.isRTL ? 'right' : 'left', marginBottom: 8 }]}>
+            {t('quantity')}
+          </Text>
           <View style={[styles.stepper, { flexDirection: I18nManager.isRTL ? 'row-reverse' : 'row' }]}>
             <TouchableOpacity onPress={decrement} style={styles.stepButton}>
               <Text style={styles.stepText}>-</Text>
@@ -228,7 +231,9 @@ const styles = StyleSheet.create({
   details: { padding: 16 },
   title: { fontSize: 20, fontWeight: 'bold', marginBottom: 8 },
   price: { fontSize: 18, color: '#333', marginBottom: 8 },
+  sectionLabel: { fontSize: 14, color: '#666', marginBottom: 16, top: 4 },
   description: { fontSize: 14, color: '#666', marginBottom: 16, top: 4 },
+  quantityLabel: { fontSize: 16, fontWeight: '600', marginTop: 8 },
   stepper: { flexDirection: 'row', alignItems: 'center', marginBottom: 16 },
   stepButton: { padding: 10, backgroundColor: '#eee', borderRadius: 6 },
   stepText: { fontSize: 16, fontWeight: 'bold' },
