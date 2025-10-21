@@ -83,7 +83,7 @@ npm run ios -- --device
 ```bash
 adb shell am start -W -a android.intent.action.VIEW -d "myshop://product/p-1001"
 ```
-
+# deep link work for installed app if outside app ,the above command will take to app
 **iOS:**
 ```bash
 xcrun simctl openurl booted "myshop://product/p-1001"
