@@ -32,13 +32,20 @@ cd ShopCart
 npm install
 ```
 
-### 2. Start Local API Server
+### 2. API Configuration
 
+The app uses a dual API setup:
+- **Development (Emulator)**: Local json-server at `localhost:3000` (iOS) or `10.0.2.2:3000` (Android)
+- **Production (Physical Device)**: ngrok tunnel at `https://delmer-superadorn-luba.ngrok-free.dev`
+
+**Start local json-server:**
 ```bash
 npm run api
 ```
 
-This starts json-server at `https://delmer-superadorn-luba.ngrok-free.dev` serving 12 products from `db.json`.
+This serves 12 products from `db.json` at `http://localhost:3000`.
+
+**For physical devices**, the app automatically uses the ngrok URL configured in `src/api/products.ts`.
 
 ### 3. Start Metro Bundler
 
@@ -150,18 +157,29 @@ src/
 - `GET /products` - List all products
 - `GET /products/:id` - Get product by ID
 
+## API Configuration Details
+
+The app automatically selects the appropriate API endpoint:
+
+**Development Mode (`__DEV__` = true):**
+- Android Emulator: `http://10.0.2.2:3000`
+- iOS Simulator: `http://localhost:3000`
+
+**Production Mode (Installed APK):**
+- Uses ngrok tunnel: `https://delmer-superadorn-luba.ngrok-free.dev`
+
+**To change the API endpoint**, edit `src/api/products.ts`:
+```typescript
+const EMULATOR_ANDROID = 'http://10.0.2.2:3000';
+const EMULATOR_IOS = 'http://localhost:3000';
+const REMOTE_BASE = 'https://your-ngrok-url.ngrok-free.dev';
+// Or use LAN IP: const LAN_BASE = 'http://192.168.1.4:3000';
+```
+
 ## Known Issues
 
 - React Native 0.82 has compatibility issues with react-native-reanimated
-- For real devices, update API_URL to your computer's IP address
-
-## Environment Configuration
-
-**For Real Devices:**
-Update `src/api/products.ts`:
-```typescript
-const API_URL = 'http://YOUR_IP:3000'; // e.g., http://192.168.1.4:3000
-```
+- RTL layout requires app restart to take effect
 
 ## Scripts
 
