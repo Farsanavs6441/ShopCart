@@ -9,7 +9,7 @@ import {
   ScrollView,
   Dimensions,
   I18nManager,
-  useColorScheme,
+
   Share,
   Animated,
 } from 'react-native';
@@ -19,6 +19,7 @@ import { toggleFavorite } from '../products/favoritesSlice';
 import { addToCart } from '../cart/cartSlice';
 import { useTranslation } from 'react-i18next';
 import i18n from '../../i18n/index';
+import { useTheme } from '../../theme/theme';
 import StarRating from '../../components/StarRating';
 import { formatCurrency } from '../../utils/currency';
 import { cacheProduct, getCachedProduct } from '../../utils/productCache';
@@ -95,8 +96,13 @@ const ProductDetailsScreen: React.FC = () => {
   console.log('Route params:', route.params);
 
   const { t } = useTranslation();
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === 'dark';
+  const theme = useTheme();
+  const colors = theme?.colors || {
+    background: '#fff',
+    text: '#000',
+    textSecondary: '#666',
+  };
+  const isDark = theme?.isDark || false;
 
   const [quantity, setQuantity] = useState(1);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -171,16 +177,16 @@ const handleShareProduct = (productId: string, productName: string) => {
 
   if (loading) {
     return (
-      <SafeAreaView style={[styles.center, { backgroundColor: isDark ? '#111' : '#fff' }]}>
-        <Text style={{ color: isDark ? '#fff' : '#000' }}>{t('loading')}</Text>
+      <SafeAreaView style={[styles.center, { backgroundColor: colors.background }]}>
+        <Text style={{ color: colors.text }}>{t('loading')}</Text>
       </SafeAreaView>
     );
   }
 
   if (!product) {
     return (
-      <SafeAreaView style={[styles.center, { backgroundColor: isDark ? '#111' : '#fff' }]}>
-        <Text style={{ color: isDark ? '#fff' : '#000', marginBottom: 20 }}>Product not found</Text>
+      <SafeAreaView style={[styles.center, { backgroundColor: colors.background }]}>
+        <Text style={{ color: colors.text, marginBottom: 20 }}>Product not found</Text>
       </SafeAreaView>
     );
   }
@@ -194,7 +200,7 @@ const handleShareProduct = (productId: string, productName: string) => {
       ].filter((img, idx, arr) => arr.indexOf(img) === idx).slice(0, 3);
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: isDark ? '#111' : '#fff' }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
       {isOffline && (
         <View style={{ backgroundColor: '#FFA726', padding: 8, alignItems: 'center' }}>
           <Text style={{ color: '#fff', fontSize: 12, fontWeight: '600' }}>📡 Offline - Showing cached data</Text>
@@ -257,21 +263,21 @@ const handleShareProduct = (productId: string, productName: string) => {
 
         {/* Product Details */}
         <View style={[styles.details, { alignItems: I18nManager.isRTL ? 'flex-end' : 'flex-start' }]}>
-          <Text style={[styles.title, { color: isDark ? '#fff' : '#000', textAlign: I18nManager.isRTL ? 'right' : 'left' }]}>{product.title}</Text>
-          <Text style={[styles.price, { color: isDark ? '#ccc' : '#333', textAlign: I18nManager.isRTL ? 'right' : 'left' }]}>
+          <Text style={[styles.title, { color: colors.text, textAlign: I18nManager.isRTL ? 'right' : 'left' }]}>{product.title}</Text>
+          <Text style={[styles.price, { color: colors.textSecondary, textAlign: I18nManager.isRTL ? 'right' : 'left' }]}>
             {formatCurrency(product.price)}
           </Text>
 
           {product.rating && <StarRating rating={product.rating} size={20} />}
 
           {product.description && (
-            <Text style={[styles.sectionLabel, { color: isDark ? '#ccc' : '#333', textAlign: I18nManager.isRTL ? 'right' : 'left' }]}>
+            <Text style={[styles.sectionLabel, { color: colors.textSecondary, textAlign: I18nManager.isRTL ? 'right' : 'left' }]}>
               {product.description}
             </Text>
           )}
 
           {/* Quantity Stepper */}
-          <Text style={[styles.quantityLabel, { color: isDark ? '#ccc' : '#333', textAlign: I18nManager.isRTL ? 'right' : 'left', marginBottom: 8 }]}>
+          <Text style={[styles.quantityLabel, { color: colors.textSecondary, textAlign: I18nManager.isRTL ? 'right' : 'left', marginBottom: 8 }]}>
             {t('quantity')}
           </Text>
           <View style={[styles.stepper, { flexDirection: I18nManager.isRTL ? 'row-reverse' : 'row' }]}>

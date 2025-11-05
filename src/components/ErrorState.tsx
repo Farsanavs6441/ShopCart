@@ -29,11 +29,9 @@ export const ErrorState: React.FC<Props> = ({
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     padding: 40,
-    marginTop: 100,
   },
   emoji: {
     fontSize: 64,
@@ -48,6 +46,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     textAlign: 'center',
     marginBottom: 24,
+    width: '100%',
   },
   button: {
     paddingHorizontal: 32,

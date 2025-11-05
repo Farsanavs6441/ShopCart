@@ -67,7 +67,11 @@ const ProductListScreen: React.FC = () => {
   const toggleLanguage = () => {
     const newLang = i18n.language === 'en' ? 'ar' : 'en';
     i18n.changeLanguage(newLang);
-    I18nManager.forceRTL(newLang === 'ar');
+    const shouldBeRTL = newLang === 'ar';
+    if (I18nManager.isRTL !== shouldBeRTL) {
+      I18nManager.allowRTL(shouldBeRTL);
+      I18nManager.forceRTL(shouldBeRTL);
+    }
   };
 
   const cachedProducts = useAppSelector((s) => s.products.items);
@@ -94,8 +98,8 @@ const ProductListScreen: React.FC = () => {
   const HORIZONTAL_PADDING = 16;
   const cardWidth = (SCREEN_WIDTH - HORIZONTAL_PADDING * 2 - CARD_MARGIN * (numColumns - 1)) / numColumns;
   
-  const paddingTopNormal = Platform.OS === 'android' ? SCREEN_HEIGHT * 0.20 : SCREEN_HEIGHT * 0.16;
-  const paddingTopWithSlider = Platform.OS === 'android' ? SCREEN_HEIGHT * 0.28 : SCREEN_HEIGHT * 0.25;
+  const paddingTopNormal = Platform.OS === 'android' ? SCREEN_HEIGHT * 0.23 : SCREEN_HEIGHT * 0.19;
+  const paddingTopWithSlider = Platform.OS === 'android' ? SCREEN_HEIGHT * 0.33 : SCREEN_HEIGHT * 0.29;
 
   const togglePriceSlider = () => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
@@ -351,11 +355,18 @@ const ProductListScreen: React.FC = () => {
                   message="Try adjusting your search or filters"
                   textColor={colors.text}
                 />
+              ) : products.length === 0 && !error ? (
+                <EmptyState
+                  emoji="🚨"
+                  title="No Products Available"
+                  message="Unable to load products. Please check your connection and try again."
+                  textColor={colors.text}
+                />
               ) : products.length === 0 ? (
                 <EmptyState
                   emoji="🚨"
                   title="Failed to Load Products"
-                  message="Please check your API server is running"
+                  message="Please start the API server: npm run api"
                   textColor={colors.text}
                 />
               ) : (
